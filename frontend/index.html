@@ -1,9 +1,58 @@
-<h1>Climbing Session Analytics</h1>
-<p>Please enter the access password</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Climbing Analytics – Login</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #111;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
 
-<input type="password" id="password" placeholder="Password" />
-<button id="login">Login</button>
+    .login-box {
+      background: #1c1c1c;
+      padding: 2rem;
+      border-radius: 8px;
+      width: 300px;
+    }
 
-<p id="status"></p>
+    input, button {
+      width: 100%;
+      padding: 0.7rem;
+      margin-top: 0.7rem;
+    }
 
-<script src="app.js"></script>
+    button {
+      cursor: pointer;
+    }
+
+    .error {
+      color: #ff6b6b;
+      margin-top: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-box">
+    <h2>Login</h2>
+
+    <input
+      type="password"
+      id="password"
+      placeholder="Enter password"
+    />
+
+    <button id="loginBtn">Login</button>
+
+    <p class="error" id="error"></p>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
