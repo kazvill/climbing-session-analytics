@@ -1,22 +1,21 @@
 import os
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from passlib.context import CryptContext
+from passlib.hash import pbkdf2_sha256
 from jose import jwt, JWTError
 from datetime import datetime, timedelta
 
 app = FastAPI()
 
-# Security setup
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# --- Security setup ---
 security = HTTPBearer()
-
-SECRET_KEY = os.getenv("SECRET_KEY")
-APP_PASSWORD = os.getenv("APP_PASSWORD")
 ALGORITHM = "HS256"
 
-# Hash password once at startup
-PASSWORD_HASH = pwd_context.hash(APP_PASSWORD)
+SECRET_KEY = os.getenv("SECRET_KEY")
+PASSWORD_HASH = os.getenv("APP_PASSWORD_HASH")
+
+if not SECRET_KEY or not PASSWORD_HASH:
+    raise RuntimeError("Missing environment variables")
 
 def create_token():
     payload = {
@@ -24,7 +23,9 @@ def create_token():
     }
     return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 
-def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
+def verify_token(
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
     try:
         jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
     except JWTError:
@@ -35,7 +36,7 @@ def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
 
 @app.post("/auth/login")
 def login(password: str):
-    if not pwd_context.verify(password, PASSWORD_HASH):
+    if not pbkdf2_sha256.verify(password, PASSWORD_HASH):
         raise HTTPException(status_code=401, detail="Incorrect password")
     return {"token": create_token()}
 
@@ -46,3 +47,7 @@ def get_sessions():
             {"date": "2025-01-01", "grade": "V4", "sent": True}
         ]
     }
+
+@app.get("/health")
+def health():
+    return {"status": "ok"}
